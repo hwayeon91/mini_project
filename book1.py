@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
 
+import cx_Oracle
 
 
 
@@ -122,3 +123,20 @@ time.sleep(5)
 
 # 브라우저 닫기
 driver.quit()
+
+#DB 접속
+
+con = cx_Oracle.connect("HWAYEON", "HWAYEON", "192.168.0.122:1521/xe", encoding="UTF-8") #오라클 연결
+print( con ) #연결확인
+
+cursor = con.cursor() #CRUD명령 실행을 위한 커서 객체를 얻는다.
+#쿼리문
+sql = """select * from boards"""
+cursor.execute(sql)
+x = cursor.fetchall()
+
+print("=====>", x)
+con.commit() #커밋을 통한 트랜잭션 종료
+
+cursor.close()
+con.close()
