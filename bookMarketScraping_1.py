@@ -18,16 +18,55 @@ driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {"source": """ O
 fpath = r'D:\hwayeon\project\초등교과.xlsx'
 workbook = openpyxl.load_workbook(fpath)
 
-subject = ["국어", "영어", "수학", "사회", "과학", "통합교과(바슬즐)", "예체능", "전과목"]
-grade = ["1학년", "2학년", "3학년", "4학년", "5학년", "6학년"]
-code_number_1_grade = [39010101, 39010102, 39010107, 39010115, 39010317] # 국어, 통합교과(바슬즐),수학, 예체능, 전과목 순서
-code_number_2_grade = [39010301, 39010302, 39010307, 39030115, 39010317] # 국어, 통합교과(바슬즐),수학, 예체능, 전과목 순서
-code_number_3_grade = [39010501, 39010507, 39010509, 39010511, 39010515] # 국어, 수학, 사회, 과학, 영어 순서
-code_number_4_grade = [39010701, 39010707, 39010709, 39010711, 39010715] # 국어, 수학, 사회, 과학, 영어 순서
-code_number_5_grade = [39010901, 39010907, 39010909, 39010911, 39010915] # 국어, 수학, 사회, 과학, 영어 순서
-code_number_6_grade = [39011101, 39011107, 39011109, 39011111, 39011115] # 국어, 수학, 사회, 과학, 영어 순서
-code_number_grade = code_number_1_grade
+# subject = ["국어", "영어", "수학", "사회", "과학", "통합교과(바슬즐)", "예체능", "전과목"]
+# grade = ["1학년", "2학년", "3학년", "4학년", "5학년", "6학년"]
+# code_number_1_grade = [39010101, 39010102, 39010107, 39010115, 39010117] # 국어, 통합교과(바슬즐),수학, 예체능, 전과목 순서
+# code_number_2_grade = [39010301, 39010302, 39010307, 39010315, 39010317] # 국어, 통합교과(바슬즐),수학, 예체능, 전과목 순서
+# code_number_3_grade = [39010501, 39010507, 39010509, 39010511, 39010515] # 국어, 수학, 사회, 과학, 영어 순서
+# code_number_4_grade = [39010701, 39010707, 39010709, 39010711, 39010715] # 국어, 수학, 사회, 과학, 영어 순서
+# code_number_5_grade = [39010901, 39010907, 39010909, 39010911, 39010915] # 국어, 수학, 사회, 과학, 영어 순서
+# code_number_6_grade = [39011101, 39011107, 39011109, 39011111, 39011115] # 국어, 수학, 사회, 과학, 영어 순서
+
 #code_number_grade = code_number_1_grade + code_number_2_grade + code_number_3_grade + code_number_4_grade + code_number_5_grade + code_number_6_grade
+
+category_info = {
+    39010101 : ("1학년","국어"),
+    39010102 : ("1학년","통합교과(바슬즐)"),
+    39010107 : ("1학년","수학"),
+    39010115 : ("1학년","예체능"),
+    39010117 : ("1학년","전과목"),
+
+    39010301 : ("2학년","국어"),
+    39010302 : ("2학년","통합교과(바슬즐)"),
+    39010307 : ("2학년","수학"),
+    39010315 : ("2학년","예체능"),
+    39010317 : ("2학년","전과목"),
+
+    39010501 : ("3학년","국어"),
+    39010507 : ("3학년","수학"),
+    39010509 : ("3학년","사회"),
+    39010511 : ("3학년","과학"),
+    39010515 : ("3학년","영어"),
+
+    39010701 : ("4학년","국어"),
+    39010707 : ("4학년","수학"),
+    39010709 : ("4학년","사회"),
+    39010711 : ("4학년","과학"),
+    39010715 : ("4학년","영어"),
+
+    39010901 : ("5학년","국어"),
+    39010907 : ("5학년","수학"),
+    39010909 : ("5학년","사회"),
+    39010911 : ("5학년","과학"),
+    39010915 : ("5학년","영어"),
+
+    39011101 : ("6학년","국어"),
+    39011107 : ("6학년","수학"),
+    39011109 : ("6학년","사회"),
+    39011111 : ("6학년","과학"),
+    39011115 : ("6학년","영어")
+}
+
 sheet_name = '초등'
 if sheet_name not in workbook.sheetnames:
     workbook.create_sheet(sheet_name)
@@ -44,12 +83,15 @@ sheet['H1'] = "정가(원)"
 sheet['I1'] = "소개"
 sheet['J1'] = "이미지"
 sheet['K1'] = "카테고리"
+sheet['L1'] = "카테고리"
+sheet['M1'] = "카테고리"
 
 if 'Sheet1' in workbook.sheetnames:
     workbook.remove(workbook['Sheet1'])
 
 start_row = 2
-for category_num in code_number_grade:
+for category_num in category_info.keys():
+    grade, subject = category_info[category_num]
     for page_num in [1,2]:  # 페이지 번호를 1에서 2까지 반복
         url = f'https://product.kyobobook.co.kr/category/KOR/{category_num}#?page={page_num}&type=all&per=20&sort=sel'
         driver.get(url)
@@ -94,7 +136,7 @@ for category_num in code_number_grade:
             normal_price_text = normal_price.text
             introduction_text = introduction.text
             image_url = image.find_element(By.TAG_NAME, 'img').get_attribute('src') if book_image else "이미지 URL 없음"
-            print("카테고리 : ", category_num )
+
             print("상품ID : ", id_text)
             print("제목 : ", title_text)
             print("저자 : ", author_text)
@@ -105,6 +147,9 @@ for category_num in code_number_grade:
             print("정가 ", normal_price_text)
             print("소개 : ", introduction_text)
             print("이미지 : ", image_url)
+            print("카테고리 : ", category_num )
+            print("학년 : ", grade )
+            print("과목 : ", subject )
             print("\n")
             #product_id 를 스크래핑된 id 로 하게 되면 하나의 책이 두군데 이상의 카테고리 중복되고있어 primary key 로 쓸 수 없음
             #product_id = str(category_num) + id_text
@@ -120,7 +165,9 @@ for category_num in code_number_grade:
             sheet[f'I{start_row}'] = introduction_text
             sheet[f'J{start_row}'] = image_url
             sheet[f'K{start_row}'] = category_num
-
+            sheet[f'L{start_row}'] = grade
+            sheet[f'M{start_row}'] = subject
+            
             start_row += 1
 
 workbook.save(fpath)
@@ -141,8 +188,8 @@ try :
         sql_insert = """
             INSERT INTO PRODUCTS (bookId, productId, productTitle, author, publisher, publishDate, 
                                         discountedRate, price, normalPrice, introduction, 
-                                        imageUrl, categoryNum, bookStock, regDate, updateDate)
-            VALUES (SEQ_BOOKID.NEXTVAL, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, 5, sysdate, sysdate)
+                                        imageUrl, categoryNum, grade, subject, bookStock, regDate, updateDate)
+            VALUES (SEQ_BOOKID.NEXTVAL, :1, :2, :3, :4, :5, :6, :7, :8, :9, :10, :11, :12, :13, 5, sysdate, sysdate)
         """
 
         # Execute the INSERT statement
